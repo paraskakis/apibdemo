@@ -1,0 +1,3291 @@
+FORMAT: 1A
+HOST: https://example.apemobile.com/public_api/v1
+
+# APE Mobile API
+
+This document is for developers who wish to access APE Mobile from their applications. It describes how to enable API access, and documents how to use each API request.
+
+# Enabling the API
+
+1. To view and change API settings, you’ll need to have the “Manage organisation” user privilege.
+![alt text](https://apemobile.zendesk.com/hc/en-us/article_attachments/202780925/API_01.jpg)
+
+2. Within the Organisation Settings, check if the API is available. If not, then contact [APE Technical Support](https://apemobile.zendesk.com/hc/en-us/requests/new).
+![alt text](https://apemobile.zendesk.com/hc/en-us/article_attachments/202780935/API_02.jpg)
+
+3. If the API is available, you should see the following in Organisation Settings:
+![alt text](https://apemobile.zendesk.com/hc/en-us/article_attachments/202780955/API_03.jpg)
+
+4. The API key will be used in your software for authentication. You can use the existing API key, or generate a new one by clicking the Regenerate If you regenerate the key, then the old one will no longer work.
+
+5. To enable or disable the API, edit the Organisation Settings and tick or un-tick the API Enabled field.
+![alt text](https://apemobile.zendesk.com/hc/en-us/article_attachments/202729829/API_04.jpg)
+
+# Group Authentication
+
+All API requests must include an Authorization Header as follows:
+
+```
+    Authorization: Token token="<your api key>"
+```
+
+Here is an example curl command to request a list of projects, with the Authorization header at the end:
+
+```
+    curl https://example.apemobile.com/public_api/v1/projects -H 'Authorization: Token token="514ca816ddde22a2b8964654689ef07"'
+```
+You may find it a REST client easier to work with than curl (such as Advanced REST Client for Chrome or RESTClient for Firefox), e.g.:
+![alt text](https://apemobile.zendesk.com/hc/en-us/article_attachments/206686006/REST_Client_for_API.jpg)
+
+# Group Error Handling
+
+Where possible we try to trap error conditions and return a helpful error message.
+
+If you get a response other than the designated success response, then check if the response content-type is “application/json”. If so, it may contain an array of error messages in the following format:
+```
+    {"error_messages" : ["error message 1", "error message 2",...]}
+```
+
+# Group Projects
+
+## Project Collection [/projects{?limit}{?active}{?after}{?updated_from}{?sort}]
+
+### Get a list of projects [GET]
+
++ Parameters
+
+    + active: `true` (string, optional) - Active state
+    
+        (true = Active projects, false = Inactive projects, all = All projects).
+        
+        + Default: `true`
+        
+        + Members
+            + `true`
+            + `false`
+            + `all`
+
+    + after: `101` (number, optional)
+    
+        Only return projects with an id greater than the “after” value.
+        This can be used to request additional projects if the previous request
+        returned its limit (by setting the after value to the last project id returned).
+        Alternatively you may want to use updated_from.
+    
+        + Default:  `0`
+
+    + limit: `1000` (number, optional) - The maximum number of results to return (maximum 1000).
+        
+        + Default: `100`
+        
+    + sort: `-updated_at` (string, optional)
+    
+        This specifies the order of the returned results. You can sort by id or by
+        updated_at. You can specified a descending order by prefixing the value with
+        a minus sign (e.g. sort=-updated_at).
+        
+        + Default: `id`
+        
+        + Members
+            + `id`
+            + `-id`
+            + `updated_at`
+            + `-updated_at`
+        
+    + updated_from: `2016-12-31T13:50:00Z` (string, optional)
+    
+        Only return projects updated after the specified value. It will try to make sense
+        of whatever datetime format you provide, but the example shows the officially
+        supported format.
+
++ Request JSON List of Projects
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            [
+              {
+                "href": "https://example.apemobile.com/public_api/v1/projects/1",
+                "id": 1,
+                "job_number": "AP20345",
+                "name": "Site Expansion Zone D",
+                "address": "6/663 Newcastle Street, Leederville, WA, 6007",
+                "user_id": 35,
+                "active": true,
+                "created_at": "2014-12-17T05:32:24Z",
+                "updated_at": "2017-02-08T22:33:17Z"
+              }
+            ]
+
+## Project Instance [/projects/{id}]
+
+### Retrieve a project [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the project.
+    
++ Request Retrieve a project
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "href": "https://example.apemobile.com/public_api/v1/projects/1",
+                "id": 1,
+                "job_number": "AP20345",
+                "name": "Site Expansion Zone D",
+                "address": "6/663 Newcastle Street, Leederville, WA, 6007",
+                "user_id": 35,
+                "active": true,
+                "created_at": "2014-12-17T05:32:24Z",
+                "updated_at": "2017-02-08T22:33:17Z"
+            }
+ 
+
+# Group Users
+
+## User Collection [/users{?limit}{?active}{?after}{?updated_from}{?sort}]
+
+### Get a list of users [GET]
+
++ Parameters
+
+    + active: `true` (string, optional) - Active state
+    
+        (true = Active, false = Inactive, all = All).
+        
+        + Default: `true`
+        
+        + Members
+            + `true`
+            + `false`
+            + `all`
+
+    + after: `101` (number, optional)
+    
+        Only return results with an id greater than the “after” value.
+        This can be used to request additional results if the previous request
+        returned its limit (by setting the after value to the last id returned).
+        Alternatively you may want to use updated_from.
+    
+        + Default:  `0`
+
+    + limit: `1000` (number, optional) - The maximum number of results to return (maximum 1000).
+        
+        + Default: `100`
+        
+    + sort: `-updated_at` (string, optional)
+    
+        This specifies the order of the returned results. You can sort by id or by
+        updated_at. You can specified a descending order by prefixing the value with
+        a minus sign (e.g. sort=-updated_at).
+        
+        + Default: `id`
+        
+        + Members
+            + `id`
+            + `-id`
+            + `updated_at`
+            + `-updated_at`
+        
+    + updated_from: `2016-12-31T13:50:00Z` (string, optional)
+    
+        Only return results updated after the specified value. It will try to make sense
+        of whatever datetime format you provide, but the example shows the officially
+        supported format.
+
++ Request JSON List of Users
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            [
+              {
+                "href": "https://example.apemobile.com/public_api/v1/users/2",
+                "id": 2,
+                "name": "Matt Edwards",
+                "email": "matt@apexperience.com.au",
+                "active": true,
+                "created_at": "2014-12-17T05:30:35Z",
+                "updated_at": "2016-10-03T06:03:44Z",
+                "uuid": "d0710e1e-5b14-4d4a-8cbb-d62359f57016",
+                "user_type": "standard"
+              }
+            ]
+
+## User Instance [/users/{id}]
+
+### Retrieve a user [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the user.
+    
++ Request Retrieve a project
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "href": "https://example.apemobile.com/public_api/v1/users/2",
+              "id": 2,
+              "name": "Matt Edwards",
+              "email": "matt@apexperience.com.au",
+              "active": true,
+              "created_at": "2014-12-16T22:30:35-07:00",
+              "updated_at": "2016-10-03T00:03:44-06:00",
+              "uuid": "d0710e1e-5b14-4d4a-8cbb-d62359f57016",
+              "user_type": "standard"
+            }
+    
+    
+# Group Companies
+
+## Company Instance [/companies/{id}]
+
+### Retrieve a company [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the company.
+    
++ Request Retrieve a project
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "id": 1,
+              "name": "Applied Project Experience",
+              "active": true,
+              "created_at": "2014-12-21T19:28:10-07:00",
+              "updated_at": "2016-03-30T21:56:26-06:00"
+            }
+    
+# Group Drawings
+
+## Drawings Collection [/drawings{?limit}{?active}{?after}{?updated_from}{?sort}{?project_id}]
+
+### Get a list of drawings [GET]
+
++ Parameters
+
+    + after: `101` (number, optional)
+    
+        Only return results with an id greater than the “after” value.
+        This can be used to request additional results if the previous request
+        returned its limit (by setting the after value to the last id returned).
+        Alternatively you may want to use updated_from.
+    
+        + Default:  `0`
+
+    + limit: `1000` (number, optional) - The maximum number of results to return (maximum 1000).
+        
+        + Default: `100`
+        
+    + project_id: `1` (number, optional)
+    
+        Only return results belonging to the project with the specified id.
+    
+        + Default:  `null (All projects)`
+
+    + sort: `-updated_at` (string, optional)
+    
+        This specifies the order of the returned results. You can sort by id or by
+        updated_at. You can specified a descending order by prefixing the value with
+        a minus sign (e.g. sort=-updated_at).
+        
+        + Default: `id`
+        
+        + Members
+            + `id`
+            + `-id`
+            + `updated_at`
+            + `-updated_at`
+        
+    + updated_from: `2016-12-31T13:50:00Z` (string, optional)
+    
+        Only return results updated after the specified value. It will try to make sense
+        of whatever datetime format you provide, but the example shows the officially
+        supported format.
+
++ Request JSON List of drawings
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            [
+              {
+                "id": 1,
+                "project_id": 1,
+                "name": "Lot 17 Sixty Eight Road, Baldivis - Stage 2 Cover",
+                "revision": "2",
+                "status": "For Construction",
+                "wbs_item_id": 5,
+                "doc_type": "Drawing",
+                "current": true,
+                "created_at": "2014-12-17T05:47:27Z",
+                "updated_at": "2014-12-17T05:47:27Z",
+                "number": "!90114",
+                "discipline": "Civil"
+              }
+            ]
+
+
+# Group Templates
+
+## Template Collection [/templates{?limit}{?active}{?after}{?updated_from}{?sort}{?include_inactive}{?type}]
+
+### Get a list of templates [GET]
+
++ Parameters
+
+    + after: `101` (number, optional)
+    
+        Only return results with an id greater than the “after” value.
+        This can be used to request additional results if the previous request
+        returned its limit (by setting the after value to the last id returned).
+        Alternatively you may want to use updated_from.
+    
+        + Default:  `0`
+
+    + include_inactive: `false` (boolean, optional) - Include inactive templates.
+    
+        + Default: `false`
+
+    + limit: `1000` (number, optional) - The maximum number of results to return (maximum 1000).
+        
+        + Default: `100`
+        
+    + sort: `-updated_at` (string, optional)
+    
+        This specifies the order of the returned results. You can sort by id or by
+        updated_at. You can specified a descending order by prefixing the value with
+        a minus sign (e.g. sort=-updated_at).
+        
+        + Default: `id`
+        
+        + Members
+            + `id`
+            + `-id`
+            + `updated_at`
+            + `-updated_at`
+        
+    + type: `draft|published` (string, optional) - Return draft or published templates (or both).
+    
+        + Default: `published`
+        
+        + Members
+            + `draft`
+            + `published`
+            + `draft|published`
+        
+    + updated_from: `2016-12-31T13:50:00Z` (string, optional)
+    
+        Only return results updated after the specified value. It will try to make sense
+        of whatever datetime format you provide, but the example shows the officially
+        supported format.
+
++ Request JSON List of Templates
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            [
+              {
+                "href": "https://example.apemobile.com/public_api/v1/templates/17",
+                "id": 17,
+                "draft_template_id": 1,
+                "name": "Defect",
+                "template_type": 4,
+                "version": null,
+                "type": "Published",
+                "published_version": 2,
+                "active": true,
+                "created_at": "2014-12-17T03:42:01Z",
+                "updated_at": "2014-12-17T03:42:01Z"
+              },
+              {
+                "href": "https://example.apemobile.com/public_api/v1/templates/18",
+                "id": 18,
+                "draft_template_id": 7,
+                "name": "Hot Work Permit",
+                "template_type": 5,
+                "version": "",
+                "type": "Published",
+                "published_version": 1,
+                "active": true,
+                "created_at": "2014-12-17T03:42:34Z",
+                "updated_at": "2014-12-17T03:42:34Z"
+              }
+            ]
+
+## Template Legacy Representation [/templates/{id}]
+
+### Retrieve a template [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the template.
+    
++ Request Retrieve a template
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "href": "https://example.apemobile.com/public_api/v1/templates/18",
+              "id": 18,
+              "draft_template_id": 7,
+              "name": "Hot Work Permit",
+              "template_type": 5,
+              "version": "",
+              "type": "Published",
+              "published_version": 1,
+              "active": true,
+              "created_at": "2014-12-17T03:42:34+00:00",
+              "updated_at": "2014-12-17T03:42:34+00:00"
+            }
+    
+## Template Verbose Representation [/templates/{id}?representation=verbose]
+
+BETA. This is an experimental representation. Please let [us](https://apemobile.zendesk.com/hc/en-us/requests/new) know if you are interested in using it.
+
+### Retrieve a template [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the template.
+    
++ Request Retrieve a template
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "type": "Published",
+              "href": "https://example.apemobile.com/public_api/v1/templates/18",
+              "draft_template": {
+                "id": 7,
+                "href": "https://example.apemobile.com/public_api/v1/templates/7"
+              },
+              "sections": [
+                {
+                  "name": "Header"
+                },
+                {
+                  "name": "Details of Person and Site Requesting Permit"
+                },
+                {
+                  "name": "PERMIT DATES COMMENCEMENT AND END"
+                },
+                {
+                  "name": "Description of Work"
+                },
+                {
+                  "name": "Operational Requirements"
+                },
+                {
+                  "name": "Applicable controls near works"
+                },
+                {
+                  "name": "Complete Risk Assesment"
+                },
+                {
+                  "name": "Approval for Hot Work (Site Supervisor)"
+                },
+                {
+                  "name": "Acceptance of Permit (Person performing the work)"
+                },
+                {
+                  "name": "Close out of Permit (Site Supervisor)"
+                }
+              ],
+              "fields": [
+                {
+                  "uuid": "f0800a78-2c45-4859-b80c-64a976dfdd5f",
+                  "field_type": {
+                    "value": 15,
+                    "description": "Sequence Number"
+                  },
+                  "control_type": {
+                    "value": 1,
+                    "description": "Text Field"
+                  },
+                  "example_values": {
+                    "value": "123"
+                  },
+                  "related_info": {
+                    "display_name": "Sequence Number",
+                    "section_index": 0
+                  }
+                },
+                {
+                  "uuid": "a6d04f48-a84d-4dc2-b972-857f128eb1a9",
+                  "field_type": {
+                    "value": 3,
+                    "description": "Short Description"
+                  },
+                  "control_type": {
+                    "value": 1,
+                    "description": "Text Field"
+                  },
+                  "example_values": {
+                    "value": "Weekly Inspection"
+                  },
+                  "related_info": {
+                    "display_name": "Short Desc.",
+                    "section_index": 0
+                  }
+                },
+                {
+                  "uuid": "8cd17177-0f00-46bf-8e67-f0551d64b9d0",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 23,
+                    "description": "Proj. List"
+                  },
+                  "example_values": {
+                    "value": "Item 7"
+                  },
+                  "related_info": {
+                    "display_name": "Name",
+                    "section_index": 1,
+                    "project_list_type": {
+                      "href": "https://example.apemobile.com/public_api/v1/project_list_types/2"
+                    }
+                  }
+                },
+                {
+                  "uuid": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf",
+                  "field_type": {
+                    "value": 1,
+                    "description": "Project"
+                  },
+                  "control_type": {
+                    "value": 12,
+                    "description": "Project"
+                  },
+                  "example_values": {
+                    "id": "1",
+                    "number": "AP20345",
+                    "name": "Site Expansion Zone D",
+                    "address": "6/663 Newcastle Street, Leederville, WA, 6007"
+                  },
+                  "related_info": {
+                    "display_name": "Site Name",
+                    "section_index": 1
+                  }
+                },
+                {
+                  "uuid": "94365f41-a502-45a7-8004-3ce77976c5f1",
+                  "field_type": {
+                    "value": 2,
+                    "description": "WBS Item"
+                  },
+                  "control_type": {
+                    "value": 14,
+                    "description": "WBS Item"
+                  },
+                  "example_values": {
+                    "id": "2",
+                    "number": "1.2",
+                    "name": "Vehicles"
+                  },
+                  "related_info": {
+                    "display_name": "WBS Item",
+                    "section_index": 1
+                  }
+                },
+                {
+                  "uuid": "a06019b1-8537-447a-9cf3-fa85cc5714a8",
+                  "field_type": {
+                    "value": 8,
+                    "description": "Date Raised"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "example_values": {
+                    "value": "2017-04-12"
+                  },
+                  "related_info": {
+                    "display_name": "Date of Issue",
+                    "section_index": 1
+                  }
+                },
+                {
+                  "uuid": "c6d8c462-3004-4ba0-90f2-1532eb4c04a8",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "example_values": {
+                    "value": "2017-04-12"
+                  },
+                  "related_info": {
+                    "display_name": "From",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "uuid": "0c6fa621-471d-4a3e-ad90-d1eb7412d152",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 26,
+                    "description": "Time"
+                  },
+                  "example_values": {
+                    "value": "13:50"
+                  },
+                  "related_info": {
+                    "display_name": "Start Time",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "uuid": "697b6ae8-ace4-47c8-9f71-1869ab44e146",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "example_values": {
+                    "value": "2017-04-12"
+                  },
+                  "related_info": {
+                    "display_name": "To",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "uuid": "04098f21-22e5-4b3d-9839-eb36bc7b7f98",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 26,
+                    "description": "Time"
+                  },
+                  "example_values": {
+                    "value": "13:50"
+                  },
+                  "related_info": {
+                    "display_name": "End Time",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "uuid": "2064fcbb-1962-485e-80e8-728cc1965454",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 23,
+                    "description": "Proj. List"
+                  },
+                  "example_values": {
+                    "value": "Item 7"
+                  },
+                  "related_info": {
+                    "display_name": "Work Location",
+                    "section_index": 3,
+                    "project_list_type": {
+                      "href": "https://example.apemobile.com/public_api/v1/project_list_types/5"
+                    }
+                  }
+                },
+                {
+                  "uuid": "fabf090f-013d-4061-8e32-3fec962e7881",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 21,
+                    "description": "Org. List"
+                  },
+                  "example_values": {
+                    "value": "Item 7"
+                  },
+                  "related_info": {
+                    "display_name": "Equipment",
+                    "section_index": 3,
+                    "organisation_list": {
+                      "href": "https://example.apemobile.com/public_api/v1/organisation_lists/12"
+                    }
+                  }
+                },
+                {
+                  "uuid": "7397bb30-d500-409d-bafc-e2f0ee40b402",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 2,
+                    "description": "Text Area"
+                  },
+                  "example_values": {
+                    "value": "Example text"
+                  },
+                  "related_info": {
+                    "display_name": "Tasks",
+                    "section_index": 3
+                  }
+                },
+                {
+                  "uuid": "377f1f51-5d55-4bcf-91f9-e55e045e3b5f",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "Q1",
+                    "section_index": 4,
+                    "question": "Is there other work in progress that will be affected by hot work being requested? (If yes then the hot work permit must not be issued until other work has ceased)"
+                  }
+                },
+                {
+                  "uuid": "dff33a13-a5d8-46e5-a926-b26d2e6eaa2f",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "Q2",
+                    "section_index": 4,
+                    "question": "Is there a total fire ban issued by FESA? (If yes then the hot work permit must not be issued until the total fire ban has been lifted)"
+                  }
+                },
+                {
+                  "uuid": "2b6a6cb2-cbac-4c0f-bbef-8526e2460092",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "1",
+                    "section_index": 5,
+                    "question": "Fire Extinguisher?"
+                  }
+                },
+                {
+                  "uuid": "78465631-9dab-4bcf-b483-ace2d3019a4d",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "2",
+                    "section_index": 5,
+                    "question": "Spotter?"
+                  }
+                },
+                {
+                  "uuid": "81d6dd00-95cb-4aee-ba70-a984ec95df16",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "3",
+                    "section_index": 5,
+                    "question": "Fire blanket?"
+                  }
+                },
+                {
+                  "uuid": "21d7d572-eec5-45d2-9bac-f5a37bc230e5",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "4",
+                    "section_index": 5,
+                    "question": "First aid kit?"
+                  }
+                },
+                {
+                  "uuid": "9913133b-899b-47ec-abab-7e6926cd32cf",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "example_values": {
+                    "question": "The vehicle is within current service kilometres and time, as evidenced by stamped/dated Service Book.",
+                    "answer": "Yes"
+                  },
+                  "related_info": {
+                    "display_name": "5",
+                    "section_index": 5,
+                    "question": "Water?"
+                  }
+                },
+                {
+                  "uuid": "4e64bd4e-bc65-4884-8d69-a16043e04ce8",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "a.",
+                    "section_index": 6,
+                    "question": "Area clean and free of all readily combustible materials as practicable"
+                  }
+                },
+                {
+                  "uuid": "93abab46-b945-48d8-b2f6-5762e249eb72",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "b.",
+                    "section_index": 6,
+                    "question": "Combustible material that is not able to be removed is protected by a suitable covering"
+                  }
+                },
+                {
+                  "uuid": "1924be49-b78f-4dbb-988c-baaba3dddef5",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "c.",
+                    "section_index": 6,
+                    "question": "Appropriate fire extinguishers/fire blankets on site near source of ignition"
+                  }
+                },
+                {
+                  "uuid": "25ef589e-cd0a-4f04-a903-242411f0b291",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "d.",
+                    "section_index": 6,
+                    "question": "All possible sparks from work contained completely by use of a suitable enclosure or distance which shall be inspected before commencing work"
+                  }
+                },
+                {
+                  "uuid": "c36100e5-c21b-4297-83d6-001337b1ff6e",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "e.",
+                    "section_index": 6,
+                    "question": "Welding machine earthed directly to equipment being welded as close to welding point as possible"
+                  }
+                },
+                {
+                  "uuid": "1fbc7289-1102-48a0-b4b0-b2cc6068fcdd",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "f.",
+                    "section_index": 6,
+                    "question": "Power leads out of access ways"
+                  }
+                },
+                {
+                  "uuid": "f0795903-97d5-41dc-b1c7-04577bed07c5",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "g.",
+                    "section_index": 6,
+                    "question": "object/machine is located away from ignition sources (flammable goods, brush/scrub)"
+                  }
+                },
+                {
+                  "uuid": "06e1835c-b13e-4d65-87a6-448840eea11b",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 16,
+                    "description": "Readonly Text"
+                  },
+                  "example_values": {
+                    "value": "Example read-only text"
+                  },
+                  "related_info": {
+                    "display_name": "Agreement Pt. 1",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "uuid": "f51e7bf3-53bf-447b-9e69-b9b934878733",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 16,
+                    "description": "Readonly Text"
+                  },
+                  "example_values": {
+                    "value": "Example read-only text"
+                  },
+                  "related_info": {
+                    "display_name": "Agreement Pt. 2",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "uuid": "1e2e85b3-b342-48a2-80ee-8f7d9317b328",
+                  "field_type": {
+                    "value": 5,
+                    "description": "Owned By"
+                  },
+                  "control_type": {
+                    "value": 13,
+                    "description": "User"
+                  },
+                  "example_values": {
+                    "id": "2",
+                    "email": "fred.bloggs@example.com",
+                    "name": "Fred Bloggs"
+                  },
+                  "related_info": {
+                    "display_name": "Owned By",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "uuid": "76e268be-7846-4e1b-af6a-d84f63e8eaf2",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 8,
+                    "description": "Signature Box"
+                  },
+                  "example_values": {
+                    "value": "Signed in APE Mobile"
+                  },
+                  "related_info": {
+                    "display_name": "Signature",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "uuid": "4394f1d2-c7e8-4126-a35e-d983d96002f3",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "example_values": {
+                    "value": "2017-04-12"
+                  },
+                  "related_info": {
+                    "display_name": "Date",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "uuid": "5eabfa95-2049-489f-a6a5-8689e5ce82e8",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 16,
+                    "description": "Readonly Text"
+                  },
+                  "example_values": {
+                    "value": "Example read-only text"
+                  },
+                  "related_info": {
+                    "display_name": "Agreement",
+                    "section_index": 8
+                  }
+                },
+                {
+                  "uuid": "63962beb-2c79-4566-b3ed-599f3f7b74f7",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 8,
+                    "description": "Signature Box"
+                  },
+                  "example_values": {
+                    "value": "Signed in APE Mobile"
+                  },
+                  "related_info": {
+                    "display_name": "Signature",
+                    "section_index": 8
+                  }
+                },
+                {
+                  "uuid": "e57630f4-abf4-4103-a687-1624c3516aa0",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "example_values": {
+                    "value": "2017-04-12"
+                  },
+                  "related_info": {
+                    "display_name": "Date",
+                    "section_index": 8
+                  }
+                },
+                {
+                  "uuid": "91541cb4-cf4a-4a0d-ade7-5ea10c866aaf",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "Option 1",
+                    "section_index": 9,
+                    "question": "This job is complete and was done so without incident. The work area has been reinstated."
+                  }
+                },
+                {
+                  "uuid": "d22c0426-f320-416d-a15b-f4a03c3069db",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "example_values": {
+                    "question": "If the vehicle is a station wagon or 4WD is a cargo barrier in place?",
+                    "answer": "N/A"
+                  },
+                  "related_info": {
+                    "display_name": "Option 2",
+                    "section_index": 9,
+                    "question": "This job is complete and was done so with an incident. The initial incident report is attached."
+                  }
+                },
+                {
+                  "uuid": "ddc742fc-de22-41e1-8a6c-a3fd5e1e43f3",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 8,
+                    "description": "Signature Box"
+                  },
+                  "example_values": {
+                    "value": "Signed in APE Mobile"
+                  },
+                  "related_info": {
+                    "display_name": "Supervisor",
+                    "section_index": 9
+                  }
+                },
+                {
+                  "uuid": "c669d479-eb72-47ae-8e0f-25d6fea71731",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "example_values": {
+                    "value": "2017-04-12"
+                  },
+                  "related_info": {
+                    "display_name": "Date",
+                    "section_index": 9
+                  }
+                }
+              ]
+            }
+    
+## Template Zapier Representation [/templates/{id}?representation=zapier]
+
+BETA. An experimental representantation designed to make our Zapier integration simpler. Please let [us](https://apemobile.zendesk.com/hc/en-us/requests/new) know if you are interested in using it.
+
+
+### Retrieve a template [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the template.
+    
++ Request Retrieve a template
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "metadata": {
+                "id": 18,
+                "href": "https://example.apemobile.com/public_api/v1/templates/18",
+                "name": "Hot Work Permit",
+                "type": "Published",
+                "published_version": 1,
+                "draft_template": {
+                  "id": 7,
+                  "href": "https://example.apemobile.com/public_api/v1/templates/7"
+                },
+                "sections": [
+                  {
+                    "name": "Header"
+                  },
+                  {
+                    "name": "Details of Person and Site Requesting Permit"
+                  },
+                  {
+                    "name": "PERMIT DATES COMMENCEMENT AND END"
+                  },
+                  {
+                    "name": "Description of Work"
+                  },
+                  {
+                    "name": "Operational Requirements"
+                  },
+                  {
+                    "name": "Applicable controls near works"
+                  },
+                  {
+                    "name": "Complete Risk Assesment"
+                  },
+                  {
+                    "name": "Approval for Hot Work (Site Supervisor)"
+                  },
+                  {
+                    "name": "Acceptance of Permit (Person performing the work)"
+                  },
+                  {
+                    "name": "Close out of Permit (Site Supervisor)"
+                  }
+                ]
+              },
+              "fields": [
+                {
+                  "reference": "f0800a78-2c45-4859-b80c-64a976dfdd5f",
+                  "display_name": "Sequence Number",
+                  "section_index": 0,
+                  "example_value": "123"
+                },
+                {
+                  "reference": "a6d04f48-a84d-4dc2-b972-857f128eb1a9",
+                  "display_name": "Short Desc.",
+                  "section_index": 0,
+                  "example_value": "Weekly Inspection"
+                },
+                {
+                  "reference": "8cd17177-0f00-46bf-8e67-f0551d64b9d0",
+                  "display_name": "Name",
+                  "section_index": 1,
+                  "example_value": "Item 7"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-id",
+                  "display_name": "Site Name (Id)",
+                  "section_index": 1,
+                  "example_value": "1"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-number",
+                  "display_name": "Site Name (Number)",
+                  "section_index": 1,
+                  "example_value": "AP20345"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-name",
+                  "display_name": "Site Name (Name)",
+                  "section_index": 1,
+                  "example_value": "Site Expansion Zone D"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-address",
+                  "display_name": "Site Name (Address)",
+                  "section_index": 1,
+                  "example_value": "6/663 Newcastle Street, Leederville, WA, 6007"
+                },
+                {
+                  "reference": "94365f41-a502-45a7-8004-3ce77976c5f1-id",
+                  "display_name": "WBS Item (Id)",
+                  "section_index": 1,
+                  "example_value": "1"
+                },
+                {
+                  "reference": "94365f41-a502-45a7-8004-3ce77976c5f1-number",
+                  "display_name": "WBS Item (Number)",
+                  "section_index": 1,
+                  "example_value": "1.2"
+                },
+                {
+                  "reference": "94365f41-a502-45a7-8004-3ce77976c5f1-name",
+                  "display_name": "WBS Item (Name)",
+                  "section_index": 1,
+                  "example_value": "Vehicles"
+                },
+                {
+                  "reference": "a06019b1-8537-447a-9cf3-fa85cc5714a8",
+                  "display_name": "Date of Issue",
+                  "section_index": 1,
+                  "example_value": "2017-04-12"
+                },
+                {
+                  "reference": "c6d8c462-3004-4ba0-90f2-1532eb4c04a8",
+                  "display_name": "From",
+                  "section_index": 2,
+                  "example_value": "2017-04-12"
+                },
+                {
+                  "reference": "0c6fa621-471d-4a3e-ad90-d1eb7412d152",
+                  "display_name": "Start Time",
+                  "section_index": 2,
+                  "example_value": "13:50"
+                },
+                {
+                  "reference": "697b6ae8-ace4-47c8-9f71-1869ab44e146",
+                  "display_name": "To",
+                  "section_index": 2,
+                  "example_value": "2017-04-12"
+                },
+                {
+                  "reference": "04098f21-22e5-4b3d-9839-eb36bc7b7f98",
+                  "display_name": "End Time",
+                  "section_index": 2,
+                  "example_value": "13:50"
+                },
+                {
+                  "reference": "2064fcbb-1962-485e-80e8-728cc1965454",
+                  "display_name": "Work Location",
+                  "section_index": 3,
+                  "example_value": "Item 7"
+                },
+                {
+                  "reference": "fabf090f-013d-4061-8e32-3fec962e7881",
+                  "display_name": "Equipment",
+                  "section_index": 3,
+                  "example_value": "Item 7"
+                },
+                {
+                  "reference": "7397bb30-d500-409d-bafc-e2f0ee40b402",
+                  "display_name": "Tasks",
+                  "section_index": 3,
+                  "example_value": "Example text"
+                },
+                {
+                  "reference": "377f1f51-5d55-4bcf-91f9-e55e045e3b5f-question",
+                  "display_name": "Q1 (Question)",
+                  "section_index": 4,
+                  "example_value": "Is there other work in progress that will be affected by hot work being requested? (If yes then the hot work permit must not be issued until other work has ceased)"
+                },
+                {
+                  "reference": "377f1f51-5d55-4bcf-91f9-e55e045e3b5f-answer",
+                  "display_name": "Q1 (Answer)",
+                  "section_index": 4,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "dff33a13-a5d8-46e5-a926-b26d2e6eaa2f-question",
+                  "display_name": "Q2 (Question)",
+                  "section_index": 4,
+                  "example_value": "Is there a total fire ban issued by FESA? (If yes then the hot work permit must not be issued until the total fire ban has been lifted)"
+                },
+                {
+                  "reference": "dff33a13-a5d8-46e5-a926-b26d2e6eaa2f-answer",
+                  "display_name": "Q2 (Answer)",
+                  "section_index": 4,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "2b6a6cb2-cbac-4c0f-bbef-8526e2460092-question",
+                  "display_name": "1 (Question)",
+                  "section_index": 5,
+                  "example_value": "Fire Extinguisher?"
+                },
+                {
+                  "reference": "2b6a6cb2-cbac-4c0f-bbef-8526e2460092-answer",
+                  "display_name": "1 (Answer)",
+                  "section_index": 5,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "78465631-9dab-4bcf-b483-ace2d3019a4d-question",
+                  "display_name": "2 (Question)",
+                  "section_index": 5,
+                  "example_value": "Spotter?"
+                },
+                {
+                  "reference": "78465631-9dab-4bcf-b483-ace2d3019a4d-answer",
+                  "display_name": "2 (Answer)",
+                  "section_index": 5,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "81d6dd00-95cb-4aee-ba70-a984ec95df16-question",
+                  "display_name": "3 (Question)",
+                  "section_index": 5,
+                  "example_value": "Fire blanket?"
+                },
+                {
+                  "reference": "81d6dd00-95cb-4aee-ba70-a984ec95df16-answer",
+                  "display_name": "3 (Answer)",
+                  "section_index": 5,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "21d7d572-eec5-45d2-9bac-f5a37bc230e5-question",
+                  "display_name": "4 (Question)",
+                  "section_index": 5,
+                  "example_value": "First aid kit?"
+                },
+                {
+                  "reference": "21d7d572-eec5-45d2-9bac-f5a37bc230e5-answer",
+                  "display_name": "4 (Answer)",
+                  "section_index": 5,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "9913133b-899b-47ec-abab-7e6926cd32cf-question",
+                  "display_name": "5 (Question)",
+                  "section_index": 5,
+                  "example_value": "Water?"
+                },
+                {
+                  "reference": "9913133b-899b-47ec-abab-7e6926cd32cf-answer",
+                  "display_name": "5 (Answer)",
+                  "section_index": 5,
+                  "example_value": "Yes"
+                },
+                {
+                  "reference": "4e64bd4e-bc65-4884-8d69-a16043e04ce8-question",
+                  "display_name": "a. (Question)",
+                  "section_index": 6,
+                  "example_value": "Area clean and free of all readily combustible materials as practicable"
+                },
+                {
+                  "reference": "4e64bd4e-bc65-4884-8d69-a16043e04ce8-answer",
+                  "display_name": "a. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "93abab46-b945-48d8-b2f6-5762e249eb72-question",
+                  "display_name": "b. (Question)",
+                  "section_index": 6,
+                  "example_value": "Combustible material that is not able to be removed is protected by a suitable covering"
+                },
+                {
+                  "reference": "93abab46-b945-48d8-b2f6-5762e249eb72-answer",
+                  "display_name": "b. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "1924be49-b78f-4dbb-988c-baaba3dddef5-question",
+                  "display_name": "c. (Question)",
+                  "section_index": 6,
+                  "example_value": "Appropriate fire extinguishers/fire blankets on site near source of ignition"
+                },
+                {
+                  "reference": "1924be49-b78f-4dbb-988c-baaba3dddef5-answer",
+                  "display_name": "c. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "25ef589e-cd0a-4f04-a903-242411f0b291-question",
+                  "display_name": "d. (Question)",
+                  "section_index": 6,
+                  "example_value": "All possible sparks from work contained completely by use of a suitable enclosure or distance which shall be inspected before commencing work"
+                },
+                {
+                  "reference": "25ef589e-cd0a-4f04-a903-242411f0b291-answer",
+                  "display_name": "d. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "c36100e5-c21b-4297-83d6-001337b1ff6e-question",
+                  "display_name": "e. (Question)",
+                  "section_index": 6,
+                  "example_value": "Welding machine earthed directly to equipment being welded as close to welding point as possible"
+                },
+                {
+                  "reference": "c36100e5-c21b-4297-83d6-001337b1ff6e-answer",
+                  "display_name": "e. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "1fbc7289-1102-48a0-b4b0-b2cc6068fcdd-question",
+                  "display_name": "f. (Question)",
+                  "section_index": 6,
+                  "example_value": "Power leads out of access ways"
+                },
+                {
+                  "reference": "1fbc7289-1102-48a0-b4b0-b2cc6068fcdd-answer",
+                  "display_name": "f. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "f0795903-97d5-41dc-b1c7-04577bed07c5-question",
+                  "display_name": "g. (Question)",
+                  "section_index": 6,
+                  "example_value": "object/machine is located away from ignition sources (flammable goods, brush/scrub)"
+                },
+                {
+                  "reference": "f0795903-97d5-41dc-b1c7-04577bed07c5-answer",
+                  "display_name": "g. (Answer)",
+                  "section_index": 6,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "06e1835c-b13e-4d65-87a6-448840eea11b",
+                  "display_name": "Agreement Pt. 1",
+                  "section_index": 7,
+                  "example_value": "Example read-only text"
+                },
+                {
+                  "reference": "f51e7bf3-53bf-447b-9e69-b9b934878733",
+                  "display_name": "Agreement Pt. 2",
+                  "section_index": 7,
+                  "example_value": "Example read-only text"
+                },
+                {
+                  "reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328-id",
+                  "display_name": "Owned By (Id)",
+                  "section_index": 7,
+                  "example_value": "1"
+                },
+                {
+                  "reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328-name",
+                  "display_name": "Owned By (Name)",
+                  "section_index": 7,
+                  "example_value": "Fred Bloggs"
+                },
+                {
+                  "reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328-email",
+                  "display_name": "Owned By (Email)",
+                  "section_index": 7,
+                  "example_value": "fred.bloggs@example.com"
+                },
+                {
+                  "reference": "76e268be-7846-4e1b-af6a-d84f63e8eaf2",
+                  "display_name": "Signature",
+                  "section_index": 7,
+                  "example_value": "Signed in APE Mobile"
+                },
+                {
+                  "reference": "4394f1d2-c7e8-4126-a35e-d983d96002f3",
+                  "display_name": "Date",
+                  "section_index": 7,
+                  "example_value": "2017-04-12"
+                },
+                {
+                  "reference": "5eabfa95-2049-489f-a6a5-8689e5ce82e8",
+                  "display_name": "Agreement",
+                  "section_index": 8,
+                  "example_value": "Example read-only text"
+                },
+                {
+                  "reference": "63962beb-2c79-4566-b3ed-599f3f7b74f7",
+                  "display_name": "Signature",
+                  "section_index": 8,
+                  "example_value": "Signed in APE Mobile"
+                },
+                {
+                  "reference": "e57630f4-abf4-4103-a687-1624c3516aa0",
+                  "display_name": "Date",
+                  "section_index": 8,
+                  "example_value": "2017-04-12"
+                },
+                {
+                  "reference": "91541cb4-cf4a-4a0d-ade7-5ea10c866aaf-question",
+                  "display_name": "Option 1 (Question)",
+                  "section_index": 9,
+                  "example_value": "This job is complete and was done so without incident. The work area has been reinstated."
+                },
+                {
+                  "reference": "91541cb4-cf4a-4a0d-ade7-5ea10c866aaf-answer",
+                  "display_name": "Option 1 (Answer)",
+                  "section_index": 9,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "d22c0426-f320-416d-a15b-f4a03c3069db-question",
+                  "display_name": "Option 2 (Question)",
+                  "section_index": 9,
+                  "example_value": "This job is complete and was done so with an incident. The initial incident report is attached."
+                },
+                {
+                  "reference": "d22c0426-f320-416d-a15b-f4a03c3069db-answer",
+                  "display_name": "Option 2 (Answer)",
+                  "section_index": 9,
+                  "example_value": "N/A"
+                },
+                {
+                  "reference": "ddc742fc-de22-41e1-8a6c-a3fd5e1e43f3",
+                  "display_name": "Supervisor",
+                  "section_index": 9,
+                  "example_value": "Signed in APE Mobile"
+                },
+                {
+                  "reference": "c669d479-eb72-47ae-8e0f-25d6fea71731",
+                  "display_name": "Date",
+                  "section_index": 9,
+                  "example_value": "2017-04-12"
+                }
+              ]
+            }
+    
+    
+    
+# Group Draft Templates
+
+Deprecated. Please use the Templates endpoints instead.
+
+## Draft Template Collection [/draft_templates{?limit}{?after}{?updated_from}{?sort}]
+
+### Get a list of draft templates [GET]
+
++ Parameters
+
+    + after: `101` (number, optional)
+    
+        Only return results with an id greater than the “after” value.
+        This can be used to request additional results if the previous request
+        returned its limit (by setting the after value to the last id returned).
+        Alternatively you may want to use updated_from.
+    
+        + Default:  `0`
+
+    + limit: `1000` (number, optional) - The maximum number of results to return (maximum 1000).
+        
+        + Default: `100`
+        
+    + sort: `-updated_at` (string, optional)
+    
+        This specifies the order of the returned results. You can sort by id or by
+        updated_at. You can specified a descending order by prefixing the value with
+        a minus sign (e.g. sort=-updated_at).
+        
+        + Default: `id`
+        
+        + Members
+            + `id`
+            + `-id`
+            + `updated_at`
+            + `-updated_at`
+        
+    + updated_from: `2016-12-31T13:50:00Z` (string, optional)
+    
+        Only return results updated after the specified value. It will try to make sense
+        of whatever datetime format you provide, but the example shows the officially
+        supported format.
+
++ Request JSON List of Draft Templates
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            [
+              {
+                "id": 1,
+                "name": "Defect",
+                "template_type": 4,
+                "version": null,
+                "active": true,
+                "created_at": "2014-11-18T09:07:44Z",
+                "updated_at": "2014-12-17T03:42:01Z"
+              },
+              {
+                "id": 3,
+                "name": "Verbal Instruction",
+                "template_type": 1,
+                "version": "",
+                "active": true,
+                "created_at": "2014-11-23T11:44:09Z",
+                "updated_at": "2014-12-17T05:27:29Z"
+              }
+            ]
+
+## Draft Template Instance [/draft_templates/{id}]
+
+### Retrieve a draft template [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the draft template.
+    
++ Request Retrieve a draft template
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "id": 3,
+              "name": "Verbal Instruction",
+              "template_type": 1,
+              "version": "",
+              "active": true,
+              "created_at": "2014-11-23T19:44:09+08:00",
+              "updated_at": "2014-12-17T13:27:29+08:00"
+            }
+    
+
+# Group Forms
+
+## Form Collection [/forms{?limit}{?after}{?updated_from}{?sort}{?status}{?project_id}{?draft_template_id}{?template_id}{?raised_from}{?raised_to}]
+
+### Get a list of forms [GET]
+
++ Parameters
+
+    + after: `101` (number, optional)
+    
+        Only return results with an id greater than the “after” value.
+        This can be used to request additional results if the previous request
+        returned its limit (by setting the after value to the last id returned).
+        Alternatively you may want to use updated_from.
+    
+        + Default:  `0`
+        
+    + draft_template_id: `101` (number, optional)
+    
+        Only return forms associate with the specified draft template. Note that there
+        can be many published versions of a given template, so you need to use
+        draft_template_id if you to get all forms for that template regardless of version.
+
+    + limit: `1000` (number, optional) - The maximum number of results to return (maximum 1000).
+        
+        + Default: `100`
+        
+    + project_id: `101` (number, optional)
+    
+        Only return forms associate with the specified project.
+
+    + sort: `-updated_at` (string, optional)
+    
+        This specifies the order of the returned results. You can sort by id or by
+        updated_at. You can specified a descending order by prefixing the value with
+        a minus sign (e.g. sort=-updated_at).
+        
+        + Default: `id`
+        
+        + Members
+            + `id`
+            + `-id`
+            + `updated_at`
+            + `-updated_at`
+        
+    + raised_from: `2016-12-01` (string, optional)
+    
+        Return forms where date raised is greater than or equal to the specified date. 
+        
+    + raised_to: `2017-01-31` (string, optional)
+    
+        Return forms where date raised is less than or equal to the specified date.
+        
+    + status: `closed` (string, optional) - Statuses to include in returned results.
+    
+        You can combine statuses by separating them with "|" (e.g. draft|open,
+        open|closed, etc.)
+
+        + Default: `draft|open|closed`
+        
+        + Members
+            + `draft`
+            + `open`
+            + `closed`
+            + `draft|open|closed`
+
+    + template_id: `101` (number, optional)
+    
+        Only return forms associate with the specified published version of a template.
+        See also draft_template_id.
+
+    + updated_from: `2016-12-31T13:50:00Z` (string, optional)
+    
+        Only return results updated after the specified value. It will try to make sense
+        of whatever datetime format you provide, but the example shows the officially
+        supported format.
+
++ Request JSON List of Users
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            [
+              {
+                "id": 19,
+                "template_id": 18,
+                "project_id": 1,
+                "wbs_item_id": 6,
+                "created_by_user_id": 2,
+                "owned_by_user_id": 2,
+                "name": "Welding Permit",
+                "date_raised": "2015-01-07",
+                "status": 1,
+                "client_created_at": "2015-01-07T02:18:55Z",
+                "client_updated_at": "2015-01-07T02:18:55Z",
+                "created_at": "2015-01-07T02:19:03Z",
+                "updated_at": "2015-01-07T02:19:03Z",
+                "sequence_number": 1,
+                "template_name": "Hot Work Permit",
+                "draft_template_id": 7
+              }
+            ]
+
+### Create a draft form [POST]
+
++ Request Create draft form from JSON (application/json)
+
+    + Headers
+    
+            Accept: application/json
+            
+    + Body
+    
+            {
+              "draft_template_id": 7,
+              "project_id": "1",
+              "created_by_user_id": "2",
+              "fields": [
+                {
+                  "field_reference": "a6d04f48-a84d-4dc2-b972-857f128eb1a9",
+                  "value": "Sample short description"
+                }
+              ]
+            }
+
++ Response 202 (application/json)
+
+    + Body
+    
+            {
+                "href": "https://example.apemobile-staging.com/public_api/v1/submissions/4822"
+            }
+
+
+## Form Legacy Representation [/forms/{id}]
+
+### Retrieve a form [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the form.
+    
++ Request Retrieve a form
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "1": "Yes",
+              "2": "Yes",
+              "3": "Yes",
+              "4": "Yes",
+              "5": "Yes",
+              "$Id": "19",
+              "$TemplateId": "18",
+              "$TemplateName": "Hot Work Permit",
+              "$TemplatePublishedVersion": "1",
+              "$DraftTemplateId": "7",
+              "$CreatedById": "2",
+              "$CreatedByName": "Matt Edwards",
+              "$CreatedAt": "2015-01-07T02:19:03+00:00",
+              "$UpdatedAt": "2015-01-07T02:19:03+00:00",
+              "$ClientCreatedAt": "2015-01-07T02:18:55+00:00",
+              "$ClientUpdatedAt": "2015-01-07T02:18:55+00:00",
+              "SequenceNumber": "1",
+              "UniqueID": "19",
+              "Name": "Welding Permit for CAA",
+              "nreq": "Matt Edwards",
+              "SiteName": "Site Expansion Zone D",
+              "ProjectNumber": "AP20345",
+              "ProjectAddress": "6/663 Newcastle Street, Leederville, WA, 6007",
+              "WBSItem": "2.2 Drainage",
+              "diss": "07-Jan-2015",
+              "From": "07-Jan-2015",
+              "stime": "10:16",
+              "To": "07-Jan-2015",
+              "etime": "12:30",
+              "WorkLocation": "South Gate",
+              "Equipment": "Welder",
+              "t": "Clean Ends\nfix in place\nWeld initial point\nCheck position\nComplete weld\nTest",
+              "Q1": "No",
+              "Q1Q": "Is there other work in progress that will be affected by hot work being requested? (If yes then the hot work permit must not be issued until other work has ceased)",
+              "Q1Y": "",
+              "Q1N": "X",
+              "Q1A": "",
+              "Q2": "No",
+              "Q2Q": "Is there a total fire ban issued by FESA? (If yes then the hot work permit must not be issued until the total fire ban has been lifted)",
+              "Q2Y": "",
+              "Q2N": "X",
+              "Q2A": "",
+              "1Q": "Fire Extinguisher?",
+              "1Y": "X",
+              "1N": "",
+              "1A": "",
+              "2Q": "Spotter?",
+              "2Y": "X",
+              "2N": "",
+              "2A": "",
+              "3Q": "Fire blanket?",
+              "3Y": "X",
+              "3N": "",
+              "3A": "",
+              "4Q": "First aid kit?",
+              "4Y": "X",
+              "4N": "",
+              "4A": "",
+              "5Q": "Water?",
+              "5Y": "X",
+              "5N": "",
+              "5A": "",
+              "a": "Yes",
+              "aQ": "Area clean and free of all readily combustible materials as practicable",
+              "aY": "X",
+              "aN": "",
+              "aA": "",
+              "b": "Yes",
+              "bQ": "Combustible material that is not able to be removed is protected by a suitable covering",
+              "bY": "X",
+              "bN": "",
+              "bA": "",
+              "c": "Yes",
+              "cQ": "Appropriate fire extinguishers/fire blankets on site near source of ignition",
+              "cY": "X",
+              "cN": "",
+              "cA": "",
+              "d": "Yes",
+              "dQ": "All possible sparks from work contained completely by use of a suitable enclosure or distance which shall be inspected before commencing work",
+              "dY": "X",
+              "dN": "",
+              "dA": "",
+              "e": "Yes",
+              "eQ": "Welding machine earthed directly to equipment being welded as close to welding point as possible",
+              "eY": "X",
+              "eN": "",
+              "eA": "",
+              "f": "Yes",
+              "fQ": "Power leads out of access ways",
+              "fY": "X",
+              "fN": "",
+              "fA": "",
+              "g": "Yes",
+              "gQ": "object/machine is located away from ignition sources (flammable goods, brush/scrub)",
+              "gY": "X",
+              "gN": "",
+              "gA": "",
+              "AgreementPt1": "I certify that the work are has been examined by me and is isolated from all dangerous materials, gas, liquid and natural bush; and is free from explosive, flammable, and toxic material;",
+              "AgreementPt2": "And in my opinion is in a safe condition for the job to be carried out, provided the controls above are in place.",
+              "nsup": "Matt Edwards",
+              "ssup": "Signed in APE Mobile",
+              "dsup": "07-Jan-2015",
+              "Agreement": "I have read this permit, am fully aware, and understand all precautions that will be adhered to throughout the course of the work",
+              "sreq": "Signed in APE Mobile",
+              "dacc": "07-Jan-2015",
+              "I1": "",
+              "I1Q": "This job is complete and was done so without incident. The work area has been reinstated.",
+              "I1Y": "",
+              "I1N": "",
+              "I1A": "",
+              "I2": "",
+              "I2Q": "This job is complete and was done so with an incident. The initial incident report is attached.",
+              "I2Y": "",
+              "I2N": "",
+              "I2A": "",
+              "Supervisor": "",
+              "dclose": ""
+            }
+    
+    
+## Form Verbose Representation [/forms/{id}?representation=verbose]
+
+### Retrieve a form [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the form.
+    
++ Request Retrieve a form
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "href": "https://example.apemobile.com/public_api/v1/forms/19",
+              "template": {
+                "href": "https://example.apemobile.com/public_api/v1/templates/18"
+              },
+              "status": {
+                "value": 1,
+                "description": "Open"
+              },
+              "sections": [
+                {
+                  "name": "Header"
+                },
+                {
+                  "name": "Details of Person and Site Requesting Permit"
+                },
+                {
+                  "name": "PERMIT DATES COMMENCEMENT AND END"
+                },
+                {
+                  "name": "Description of Work"
+                },
+                {
+                  "name": "Operational Requirements"
+                },
+                {
+                  "name": "Applicable controls near works"
+                },
+                {
+                  "name": "Complete Risk Assesment"
+                },
+                {
+                  "name": "Approval for Hot Work (Site Supervisor)"
+                },
+                {
+                  "name": "Acceptance of Permit (Person performing the work)"
+                },
+                {
+                  "name": "Close out of Permit (Site Supervisor)"
+                }
+              ],
+              "fields": [
+                {
+                  "field_reference": "f0800a78-2c45-4859-b80c-64a976dfdd5f",
+                  "field_type": {
+                    "value": 15,
+                    "description": "Sequence Number"
+                  },
+                  "control_type": {
+                    "value": 1,
+                    "description": "Text Field"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Sequence Number"
+                  },
+                  "related_information": {
+                    "display_name": "Sequence Number",
+                    "section_index": 0
+                  }
+                },
+                {
+                  "field_reference": "a6d04f48-a84d-4dc2-b972-857f128eb1a9",
+                  "field_type": {
+                    "value": 3,
+                    "description": "Short Description"
+                  },
+                  "control_type": {
+                    "value": 1,
+                    "description": "Text Field"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Short Description"
+                  },
+                  "related_information": {
+                    "display_name": "Short Desc.",
+                    "section_index": 0
+                  }
+                },
+                {
+                  "field_reference": "8cd17177-0f00-46bf-8e67-f0551d64b9d0",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 23,
+                    "description": "Proj. List"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Selection from Project List"
+                  },
+                  "related_information": {
+                    "display_name": "Name",
+                    "section_index": 1,
+                    "project_list_type": {
+                      "href": "https://example.apemobile.com/public_api/v1/project_list_types/2"
+                    },
+                    "project_list": {
+                      "href": "https://example.apemobile.com/public_api/v1/projects/1/project_lists/1"
+                    }
+                  }
+                },
+                {
+                  "field_reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf",
+                  "field_type": {
+                    "value": 1,
+                    "description": "Project"
+                  },
+                  "control_type": {
+                    "value": 12,
+                    "description": "Project"
+                  },
+                  "field_value": {
+                    "value": "Site Expansion Zone D",
+                    "description": "Project Name"
+                  },
+                  "related_information": {
+                    "display_name": "Site Name",
+                    "section_index": 1,
+                    "project": {
+                      "href": "https://example.apemobile.com/public_api/v1/projects/1"
+                    }
+                  }
+                },
+                {
+                  "field_reference": "94365f41-a502-45a7-8004-3ce77976c5f1",
+                  "field_type": {
+                    "value": 2,
+                    "description": "WBS Item"
+                  },
+                  "control_type": {
+                    "value": 14,
+                    "description": "WBS Item"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Work Breakdown Structure Item"
+                  },
+                  "related_information": {
+                    "display_name": "WBS Item",
+                    "section_index": 1,
+                    "wbs_item": {
+                      "href": "https://example.apemobile.com/public_api/v1/projects/1/wbs_items/6"
+                    }
+                  }
+                },
+                {
+                  "field_reference": "a06019b1-8537-447a-9cf3-fa85cc5714a8",
+                  "field_type": {
+                    "value": 8,
+                    "description": "Date Raised"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Date Raised"
+                  },
+                  "related_information": {
+                    "display_name": "Date of Issue",
+                    "section_index": 1
+                  }
+                },
+                {
+                  "field_reference": "c6d8c462-3004-4ba0-90f2-1532eb4c04a8",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Date"
+                  },
+                  "related_information": {
+                    "display_name": "From",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "field_reference": "0c6fa621-471d-4a3e-ad90-d1eb7412d152",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 26,
+                    "description": "Time"
+                  },
+                  "field_value": {
+                    "value": "10:16:00",
+                    "description": "Time"
+                  },
+                  "related_information": {
+                    "display_name": "Start Time",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "field_reference": "697b6ae8-ace4-47c8-9f71-1869ab44e146",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Date"
+                  },
+                  "related_information": {
+                    "display_name": "To",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "field_reference": "04098f21-22e5-4b3d-9839-eb36bc7b7f98",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 26,
+                    "description": "Time"
+                  },
+                  "field_value": {
+                    "value": "12:30:00",
+                    "description": "Time"
+                  },
+                  "related_information": {
+                    "display_name": "End Time",
+                    "section_index": 2
+                  }
+                },
+                {
+                  "field_reference": "2064fcbb-1962-485e-80e8-728cc1965454",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 23,
+                    "description": "Proj. List"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Selection from Project List"
+                  },
+                  "related_information": {
+                    "display_name": "Work Location",
+                    "section_index": 3,
+                    "project_list_type": {
+                      "href": "https://example.apemobile.com/public_api/v1/project_list_types/5"
+                    },
+                    "project_list": {
+                      "href": "https://example.apemobile.com/public_api/v1/projects/1/project_lists/3"
+                    }
+                  }
+                },
+                {
+                  "field_reference": "fabf090f-013d-4061-8e32-3fec962e7881",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 21,
+                    "description": "Org. List"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Selection from Organisation List"
+                  },
+                  "related_information": {
+                    "display_name": "Equipment",
+                    "section_index": 3,
+                    "organisation_list": {
+                      "href": "https://example.apemobile.com/public_api/v1/organisation_lists/12"
+                    }
+                  }
+                },
+                {
+                  "field_reference": "7397bb30-d500-409d-bafc-e2f0ee40b402",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 2,
+                    "description": "Text Area"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Text"
+                  },
+                  "related_information": {
+                    "display_name": "Tasks",
+                    "section_index": 3
+                  }
+                },
+                {
+                  "field_reference": "377f1f51-5d55-4bcf-91f9-e55e045e3b5f",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "Q1",
+                    "section_index": 4,
+                    "question": "Is there other work in progress that will be affected by hot work being requested? (If yes then the hot work permit must not be issued until other work has ceased)"
+                  }
+                },
+                {
+                  "field_reference": "dff33a13-a5d8-46e5-a926-b26d2e6eaa2f",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "Q2",
+                    "section_index": 4,
+                    "question": "Is there a total fire ban issued by FESA? (If yes then the hot work permit must not be issued until the total fire ban has been lifted)"
+                  }
+                },
+                {
+                  "field_reference": "2b6a6cb2-cbac-4c0f-bbef-8526e2460092",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "1",
+                    "section_index": 5,
+                    "question": "Fire Extinguisher?"
+                  }
+                },
+                {
+                  "field_reference": "78465631-9dab-4bcf-b483-ace2d3019a4d",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "2",
+                    "section_index": 5,
+                    "question": "Spotter?"
+                  }
+                },
+                {
+                  "field_reference": "81d6dd00-95cb-4aee-ba70-a984ec95df16",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "3",
+                    "section_index": 5,
+                    "question": "Fire blanket?"
+                  }
+                },
+                {
+                  "field_reference": "21d7d572-eec5-45d2-9bac-f5a37bc230e5",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "4",
+                    "section_index": 5,
+                    "question": "First aid kit?"
+                  }
+                },
+                {
+                  "field_reference": "9913133b-899b-47ec-abab-7e6926cd32cf",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 6,
+                    "description": "Yes/No"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No Question"
+                  },
+                  "related_information": {
+                    "display_name": "5",
+                    "section_index": 5,
+                    "question": "Water?"
+                  }
+                },
+                {
+                  "field_reference": "4e64bd4e-bc65-4884-8d69-a16043e04ce8",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "a.",
+                    "section_index": 6,
+                    "question": "Area clean and free of all readily combustible materials as practicable"
+                  }
+                },
+                {
+                  "field_reference": "93abab46-b945-48d8-b2f6-5762e249eb72",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "b.",
+                    "section_index": 6,
+                    "question": "Combustible material that is not able to be removed is protected by a suitable covering"
+                  }
+                },
+                {
+                  "field_reference": "1924be49-b78f-4dbb-988c-baaba3dddef5",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "c.",
+                    "section_index": 6,
+                    "question": "Appropriate fire extinguishers/fire blankets on site near source of ignition"
+                  }
+                },
+                {
+                  "field_reference": "25ef589e-cd0a-4f04-a903-242411f0b291",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "d.",
+                    "section_index": 6,
+                    "question": "All possible sparks from work contained completely by use of a suitable enclosure or distance which shall be inspected before commencing work"
+                  }
+                },
+                {
+                  "field_reference": "c36100e5-c21b-4297-83d6-001337b1ff6e",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "e.",
+                    "section_index": 6,
+                    "question": "Welding machine earthed directly to equipment being welded as close to welding point as possible"
+                  }
+                },
+                {
+                  "field_reference": "1fbc7289-1102-48a0-b4b0-b2cc6068fcdd",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "f.",
+                    "section_index": 6,
+                    "question": "Power leads out of access ways"
+                  }
+                },
+                {
+                  "field_reference": "f0795903-97d5-41dc-b1c7-04577bed07c5",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "g.",
+                    "section_index": 6,
+                    "question": "object/machine is located away from ignition sources (flammable goods, brush/scrub)"
+                  }
+                },
+                {
+                  "field_reference": "06e1835c-b13e-4d65-87a6-448840eea11b",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 16,
+                    "description": "Readonly Text"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Read-only Text"
+                  },
+                  "related_information": {
+                    "display_name": "Agreement Pt. 1",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "field_reference": "f51e7bf3-53bf-447b-9e69-b9b934878733",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 16,
+                    "description": "Readonly Text"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Read-only Text"
+                  },
+                  "related_information": {
+                    "display_name": "Agreement Pt. 2",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "field_reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328",
+                  "field_type": {
+                    "value": 5,
+                    "description": "Owned By"
+                  },
+                  "control_type": {
+                    "value": 13,
+                    "description": "User"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Owner Name"
+                  },
+                  "related_information": {
+                    "display_name": "Owned By",
+                    "section_index": 7,
+                    "owner": {
+                      "href": "https://example.apemobile.com/public_api/v1/users/2"
+                    }
+                  }
+                },
+                {
+                  "field_reference": "76e268be-7846-4e1b-af6a-d84f63e8eaf2",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 8,
+                    "description": "Signature Box"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Whether Signed"
+                  },
+                  "related_information": {
+                    "display_name": "Signature",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "field_reference": "4394f1d2-c7e8-4126-a35e-d983d96002f3",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Date"
+                  },
+                  "related_information": {
+                    "display_name": "Date",
+                    "section_index": 7
+                  }
+                },
+                {
+                  "field_reference": "5eabfa95-2049-489f-a6a5-8689e5ce82e8",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 16,
+                    "description": "Readonly Text"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Read-only Text"
+                  },
+                  "related_information": {
+                    "display_name": "Agreement",
+                    "section_index": 8
+                  }
+                },
+                {
+                  "field_reference": "63962beb-2c79-4566-b3ed-599f3f7b74f7",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 8,
+                    "description": "Signature Box"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Whether Signed"
+                  },
+                  "related_information": {
+                    "display_name": "Signature",
+                    "section_index": 8
+                  }
+                },
+                {
+                  "field_reference": "e57630f4-abf4-4103-a687-1624c3516aa0",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Date"
+                  },
+                  "related_information": {
+                    "display_name": "Date",
+                    "section_index": 8
+                  }
+                },
+                {
+                  "field_reference": "91541cb4-cf4a-4a0d-ade7-5ea10c866aaf",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "Option 1",
+                    "section_index": 9,
+                    "question": "This job is complete and was done so without incident. The work area has been reinstated."
+                  }
+                },
+                {
+                  "field_reference": "d22c0426-f320-416d-a15b-f4a03c3069db",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 7,
+                    "description": "Yes/No/NA"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Answer to Yes/No/NA Question"
+                  },
+                  "related_information": {
+                    "display_name": "Option 2",
+                    "section_index": 9,
+                    "question": "This job is complete and was done so with an incident. The initial incident report is attached."
+                  }
+                },
+                {
+                  "field_reference": "ddc742fc-de22-41e1-8a6c-a3fd5e1e43f3",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 8,
+                    "description": "Signature Box"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Whether Signed"
+                  },
+                  "related_information": {
+                    "display_name": "Supervisor",
+                    "section_index": 9
+                  }
+                },
+                {
+                  "field_reference": "c669d479-eb72-47ae-8e0f-25d6fea71731",
+                  "field_type": {
+                    "value": 0,
+                    "description": "User Defined"
+                  },
+                  "control_type": {
+                    "value": 4,
+                    "description": "Date"
+                  },
+                  "field_value": {
+                    "value": null,
+                    "description": "Date"
+                  },
+                  "related_information": {
+                    "display_name": "Date",
+                    "section_index": 9
+                  }
+                }
+              ]
+            }
+    
+    
+## Form Zapier Representation [/forms/{id}?representation=zapier]
+
+### Retrieve a form [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the form.
+    
++ Request Retrieve a form
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "metadata": {
+                "href": "https://example.apemobile.com/public_api/v1/forms/19",
+                "template": {
+                  "id": 18,
+                  "href": "https://example.apemobile.com/public_api/v1/templates/18",
+                  "draft_template": {
+                    "id": 7,
+                    "href": "https://example.apemobile.com/public_api/v1/templates/7"
+                  }
+                },
+                "type": "Form",
+                "status": 1,
+                "created_at": "2015-01-07T02:19:03+00:00",
+                "updated_at": "2015-01-07T02:19:03+00:00",
+                "creator": {
+                  "href": "https://example.apemobile.com/public_api/v1/templates/2"
+                }
+              },
+              "fields": [
+                {
+                  "reference": "f0800a78-2c45-4859-b80c-64a976dfdd5f",
+                  "value": "1"
+                },
+                {
+                  "reference": "a6d04f48-a84d-4dc2-b972-857f128eb1a9",
+                  "value": "Welding Permit for CAA"
+                },
+                {
+                  "reference": "8cd17177-0f00-46bf-8e67-f0551d64b9d0",
+                  "value": "Matt Edwards"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-id",
+                  "value": 1
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-number",
+                  "value": "AP20345"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-name",
+                  "value": "Site Expansion Zone D"
+                },
+                {
+                  "reference": "185b216b-59cf-49cb-87ee-a20cb2fd1dcf-address",
+                  "value": "6/663 Newcastle Street, Leederville, WA, 6007"
+                },
+                {
+                  "reference": "94365f41-a502-45a7-8004-3ce77976c5f1-id",
+                  "value": 6
+                },
+                {
+                  "reference": "94365f41-a502-45a7-8004-3ce77976c5f1-number",
+                  "value": "2.2"
+                },
+                {
+                  "reference": "94365f41-a502-45a7-8004-3ce77976c5f1-name",
+                  "value": "Drainage"
+                },
+                {
+                  "reference": "a06019b1-8537-447a-9cf3-fa85cc5714a8",
+                  "value": "2015-01-07"
+                },
+                {
+                  "reference": "c6d8c462-3004-4ba0-90f2-1532eb4c04a8",
+                  "value": "2015-01-07"
+                },
+                {
+                  "reference": "0c6fa621-471d-4a3e-ad90-d1eb7412d152",
+                  "value": "10:16:00 Australia/Perth"
+                },
+                {
+                  "reference": "697b6ae8-ace4-47c8-9f71-1869ab44e146",
+                  "value": "2015-01-07"
+                },
+                {
+                  "reference": "04098f21-22e5-4b3d-9839-eb36bc7b7f98",
+                  "value": "12:30:00 Australia/Perth"
+                },
+                {
+                  "reference": "2064fcbb-1962-485e-80e8-728cc1965454",
+                  "value": "South Gate"
+                },
+                {
+                  "reference": "fabf090f-013d-4061-8e32-3fec962e7881",
+                  "value": "Welder"
+                },
+                {
+                  "reference": "7397bb30-d500-409d-bafc-e2f0ee40b402",
+                  "value": "Clean Ends\nfix in place\nWeld initial point\nCheck position\nComplete weld\nTest"
+                },
+                {
+                  "reference": "377f1f51-5d55-4bcf-91f9-e55e045e3b5f-question",
+                  "value": "Is there other work in progress that will be affected by hot work being requested? (If yes then the hot work permit must not be issued until other work has ceased)"
+                },
+                {
+                  "reference": "377f1f51-5d55-4bcf-91f9-e55e045e3b5f-answer",
+                  "value": "No"
+                },
+                {
+                  "reference": "dff33a13-a5d8-46e5-a926-b26d2e6eaa2f-question",
+                  "value": "Is there a total fire ban issued by FESA? (If yes then the hot work permit must not be issued until the total fire ban has been lifted)"
+                },
+                {
+                  "reference": "dff33a13-a5d8-46e5-a926-b26d2e6eaa2f-answer",
+                  "value": "No"
+                },
+                {
+                  "reference": "2b6a6cb2-cbac-4c0f-bbef-8526e2460092-question",
+                  "value": "Fire Extinguisher?"
+                },
+                {
+                  "reference": "2b6a6cb2-cbac-4c0f-bbef-8526e2460092-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "78465631-9dab-4bcf-b483-ace2d3019a4d-question",
+                  "value": "Spotter?"
+                },
+                {
+                  "reference": "78465631-9dab-4bcf-b483-ace2d3019a4d-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "81d6dd00-95cb-4aee-ba70-a984ec95df16-question",
+                  "value": "Fire blanket?"
+                },
+                {
+                  "reference": "81d6dd00-95cb-4aee-ba70-a984ec95df16-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "21d7d572-eec5-45d2-9bac-f5a37bc230e5-question",
+                  "value": "First aid kit?"
+                },
+                {
+                  "reference": "21d7d572-eec5-45d2-9bac-f5a37bc230e5-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "9913133b-899b-47ec-abab-7e6926cd32cf-question",
+                  "value": "Water?"
+                },
+                {
+                  "reference": "9913133b-899b-47ec-abab-7e6926cd32cf-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "4e64bd4e-bc65-4884-8d69-a16043e04ce8-question",
+                  "value": "Area clean and free of all readily combustible materials as practicable"
+                },
+                {
+                  "reference": "4e64bd4e-bc65-4884-8d69-a16043e04ce8-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "93abab46-b945-48d8-b2f6-5762e249eb72-question",
+                  "value": "Combustible material that is not able to be removed is protected by a suitable covering"
+                },
+                {
+                  "reference": "93abab46-b945-48d8-b2f6-5762e249eb72-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "1924be49-b78f-4dbb-988c-baaba3dddef5-question",
+                  "value": "Appropriate fire extinguishers/fire blankets on site near source of ignition"
+                },
+                {
+                  "reference": "1924be49-b78f-4dbb-988c-baaba3dddef5-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "25ef589e-cd0a-4f04-a903-242411f0b291-question",
+                  "value": "All possible sparks from work contained completely by use of a suitable enclosure or distance which shall be inspected before commencing work"
+                },
+                {
+                  "reference": "25ef589e-cd0a-4f04-a903-242411f0b291-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "c36100e5-c21b-4297-83d6-001337b1ff6e-question",
+                  "value": "Welding machine earthed directly to equipment being welded as close to welding point as possible"
+                },
+                {
+                  "reference": "c36100e5-c21b-4297-83d6-001337b1ff6e-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "1fbc7289-1102-48a0-b4b0-b2cc6068fcdd-question",
+                  "value": "Power leads out of access ways"
+                },
+                {
+                  "reference": "1fbc7289-1102-48a0-b4b0-b2cc6068fcdd-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "f0795903-97d5-41dc-b1c7-04577bed07c5-question",
+                  "value": "object/machine is located away from ignition sources (flammable goods, brush/scrub)"
+                },
+                {
+                  "reference": "f0795903-97d5-41dc-b1c7-04577bed07c5-answer",
+                  "value": "Yes"
+                },
+                {
+                  "reference": "06e1835c-b13e-4d65-87a6-448840eea11b",
+                  "value": "I certify that the work are has been examined by me and is isolated from all dangerous materials, gas, liquid and natural bush; and is free from explosive, flammable, and toxic material;"
+                },
+                {
+                  "reference": "f51e7bf3-53bf-447b-9e69-b9b934878733",
+                  "value": "And in my opinion is in a safe condition for the job to be carried out, provided the controls above are in place."
+                },
+                {
+                  "reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328-id",
+                  "value": 2
+                },
+                {
+                  "reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328-name",
+                  "value": "Matt Edwards"
+                },
+                {
+                  "reference": "1e2e85b3-b342-48a2-80ee-8f7d9317b328-email",
+                  "value": "matt@apexperience.com.au"
+                },
+                {
+                  "reference": "76e268be-7846-4e1b-af6a-d84f63e8eaf2",
+                  "value": "Signed"
+                },
+                {
+                  "reference": "4394f1d2-c7e8-4126-a35e-d983d96002f3",
+                  "value": "2015-01-07"
+                },
+                {
+                  "reference": "5eabfa95-2049-489f-a6a5-8689e5ce82e8",
+                  "value": "I have read this permit, am fully aware, and understand all precautions that will be adhered to throughout the course of the work"
+                },
+                {
+                  "reference": "63962beb-2c79-4566-b3ed-599f3f7b74f7",
+                  "value": "Signed"
+                },
+                {
+                  "reference": "e57630f4-abf4-4103-a687-1624c3516aa0",
+                  "value": "2015-01-07"
+                },
+                {
+                  "reference": "91541cb4-cf4a-4a0d-ade7-5ea10c866aaf-question",
+                  "value": "This job is complete and was done so without incident. The work area has been reinstated."
+                },
+                {
+                  "reference": "91541cb4-cf4a-4a0d-ade7-5ea10c866aaf-answer",
+                  "value": ""
+                },
+                {
+                  "reference": "d22c0426-f320-416d-a15b-f4a03c3069db-question",
+                  "value": "This job is complete and was done so with an incident. The initial incident report is attached."
+                },
+                {
+                  "reference": "d22c0426-f320-416d-a15b-f4a03c3069db-answer",
+                  "value": ""
+                },
+                {
+                  "reference": "ddc742fc-de22-41e1-8a6c-a3fd5e1e43f3",
+                  "value": ""
+                },
+                {
+                  "reference": "c669d479-eb72-47ae-8e0f-25d6fea71731",
+                  "value": ""
+                }
+              ]
+            }
+    
+# Group Submissions
+
+## Submission Instance [/submissions/{id}]
+
+### Retrieve a submission [GET]
+
++ Parameters
+
+    + id: `1` (number) - The unique identifier of the submission.
+    
++ Request Retrieve a submission
+
+    + Headers
+    
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    Response status can be "Pending", "Succeeded", or "Rejected". object is only included if status
+    is "Succeeded". error_messages is only included if status is "Rejected".
+
+    + Body
+    
+            {
+              "status": "Succeeded",
+              "object": {
+                "href": "https://example.apemobile-staging.com/public_api/v1/forms/783"
+              },
+              "error_messages": [ "<Error message>" ]
+            }
